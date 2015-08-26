@@ -27,7 +27,7 @@ public class invdataManager {
      private final String userName = "sa";
      private final String password = "";
 	
-	public int checkAuth(String usr,String pass)
+	public int checkAuth(String usr,String pass) 
 	{
 		 Connection conn = null;
 		 int returncode=0;
@@ -50,24 +50,37 @@ public class invdataManager {
 	                   returncode=-3;
 	  
 	            }
+	            else
+	            {
+	            	returncode=-4;
+	            }	
+	            	
+	            return returncode;
 	            
 	           
 	            
 	 
-	        } catch (SQLException ex) {
+	        }
+	        catch(ClassNotFoundException ex)
+	        {
+	        	 ex.printStackTrace();
+		            return -5;
+	        }
+	        catch (SQLException ex) {
 	            ex.printStackTrace();
 	            return -1;
 	        } finally {
 	            try {
 	                if (conn != null && !conn.isClosed()) {
 	                    conn.close();
-	                    return returncode;
+	                  
 	                    
 	                }
 	            } catch (SQLException ex) {
 	                ex.printStackTrace();
 	                return -2;
 	            }
+	           
 	        }
 	}
 	
@@ -84,77 +97,80 @@ public class invdataManager {
 	             conn = java.sql.DriverManager.getConnection(getConnectionUrl(2),userName,password);
 	             conn.setAutoCommit(false);
 	             int theindex=0;
-	            if (conn != null) {
-	            	
-	            	for (invdatas item : List<invdatas>) {
-	            	  
-	            	 PreparedStatement ps = conn.prepareStatement( "SELECT * FROM ls_inv_back   WHERE cli_no = ? and list_no=? and prod_no=? and batch_no=? and prod_add=?" ) ;
+	             
+	            for (invdatas item : invdatalist) {
+				  
+				 PreparedStatement ps = conn.prepareStatement( "SELECT * FROM ls_inv_back   WHERE cli_no = ? and list_no=? and prod_no=? and batch_no=? and prod_add=?" ) ;
 
-	                 // Set the first parameter of the statement
-	                 ps.setString( 1, clino ) ;
-	                 ps.setString( 2, item.getListno()) ;
-	                 ps.setString( 3, item.getProdno()) ;
-	                 ps.setString( 4, item.getBatchno()) ;
-	                 ps.setString( 5, item.getProdadd()) ;
-	                 // Execute the query
-	                 ResultSet rs = ps.executeQuery() ;
-	                 if(rs.next())
-	                 {
-	                   returncode=-5;
-	                   break;
-	                 }
-	                 
-	                 mydate[theindex]=parseDate(item.getInvdate());
-	                 if (mydate[theindex]==null)
-	                 {
-	                	 returncode=-6;
-	                	 break;
-	                 }
-	                 theindex++;
-	            	}
-	            	if (returncode==0)
-	            	{
-	            		int theindex=0;
-	            		for (invdatas item : List<invdatas>) {
-	            		
-	            			String insertTableSQL = "INSERT INTO ls_inv_back"
-	            					+ "(cli_no,list_no,inv_date"
-                                    +" ,prod_no,batch_No,prod_add"
-                                    +",inv_num,std_price,sell_price"
-                                    +",buy_price,pzjj,inv_bywho"
-                                    +" ,st_type,retail_price ) VALUES"
-	            					+ "(?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
-	            			PreparedStatement preparedStatement = dbConnection.prepareStatement(insertTableSQL);
-	            			preparedStatement.setString(1, clino);
-	            			preparedStatement.setString(2, item.getListno());
-	            			preparedStatement.setDate(3, mydate[theindex]);
-	            			preparedStatement.setString(4, item.getProdno());
-	            			preparedStatement.setString(5, item.getBatchno());
-	            			preparedStatement.setString(6, item.getProdadd());
-	            			preparedStatement.setDouble(7, item.getInvnum());
-	            			preparedStatement.setDouble(8, item.getStdprice());
-	            			preparedStatement.setDouble(9,item.getSellprice());
-	            			preparedStatement.setString(10, item.getBuyprice());
-	            			preparedStatement.setString(11, item.getPzjj());
-	            			preparedStatement.setString(12, item.getBywho());
-	            			preparedStatement.setString(13, item.getSttype());
-	            			preparedStatement.setDouble(14, item.getRetailprice());
-	            			// execute insert SQL stetement
-	            			preparedStatement .executeUpdate();
-	            			
-	            			theindex++;
-	            			
-	            		}
-	            		
-	            		conn.commit();
-	            		
-	            	
-	            	}
-	            	
-	            }
+				 // Set the first parameter of the statement
+				 ps.setString( 1, clino ) ;
+				 ps.setString( 2, item.getListno()) ;
+				 ps.setString( 3, item.getProdno()) ;
+				 ps.setString( 4, item.getBatchno()) ;
+				 ps.setString( 5, item.getProdadd()) ;
+				 // Execute the query
+				 ResultSet rs = ps.executeQuery() ;
+				 if(rs.next())
+				 {
+				   returncode=-5;
+				   break;
+				 }
+				 
+				 mydate[theindex]=parseDate(item.getInvdate());
+				 if (mydate[theindex]==null)
+				 {
+					 returncode=-6;
+					 break;
+				 }
+				 theindex++;
+				}
+				if (returncode==0)
+				{
+					theindex=0;
+					for (invdatas item : invdatalist) {
+					
+						String insertTableSQL = "INSERT INTO ls_inv_back"
+								+ "(cli_no,list_no,inv_date"
+				                +" ,prod_no,batch_No,prod_add"
+				                +",inv_num,std_price,sell_price"
+				                +",buy_price,pzjj,inv_bywho"
+				                +" ,st_type,retail_price ) VALUES"
+								+ "(?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+						PreparedStatement preparedStatement = conn.prepareStatement(insertTableSQL);
+						preparedStatement.setString(1, clino);
+						preparedStatement.setString(2, item.getListno());
+						preparedStatement.setDate(3, mydate[theindex]);
+						preparedStatement.setString(4, item.getProdno());
+						preparedStatement.setString(5, item.getBatchno());
+						preparedStatement.setString(6, item.getProdadd());
+						preparedStatement.setDouble(7, item.getInvnum());
+						preparedStatement.setDouble(8, item.getStdprice());
+						preparedStatement.setDouble(9,item.getSellprice());
+						preparedStatement.setDouble(10, item.getBuyprice());
+						preparedStatement.setString(11, item.getPzjj());
+						preparedStatement.setString(12, item.getBywho());
+						preparedStatement.setString(13, item.getSttype());
+						preparedStatement.setDouble(14, item.getRetailprice());
+						// execute insert SQL stetement
+						preparedStatement .executeUpdate();
+						
+						theindex++;
+						
+					}
+					
+					conn.commit();
+				
+				    return returncode;
+				}
 	            
 	 
-	        } catch (SQLException ex) {
+	        }
+	        catch(ClassNotFoundException ex)
+	        {
+	        	 ex.printStackTrace();
+		            return -5;
+	        }
+	        catch (SQLException ex) {
 	        
 	            ex.printStackTrace();
 	      	  if (conn != null) 
@@ -162,14 +178,15 @@ public class invdataManager {
                   try 
                   {
         	           conn.rollback();
+        	           return -1;
                   }
                   catch(SQLException excep) 
                   {
-                      JDBCTutorialUtilities.printSQLException(excep);
+                	  excep.printStackTrace();
                   }
 	              
 	          }
-	      	      return -1;
+	      	    
 	      	  } 
 	            
 	        
