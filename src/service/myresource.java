@@ -28,7 +28,7 @@ public class myresource {
 		if(ivm.getPass()==null)
 			throw new HTTPException(HttpServletResponse.SC_BAD_REQUEST);
 		
-		if(ivm.getRecordcount()==null)
+		if(ivm.getRecordcount()==0)
 			throw new HTTPException(HttpServletResponse.SC_BAD_REQUEST);
 		
 		if(ivm.getInvdatalist()==null)
@@ -37,10 +37,12 @@ public class myresource {
 		if (ivm.getRecordcount()>2000)
 			return 1;
 		
-		if (checkAuth(ivm.getClino(),ivm.getPass())!=0)
+		invdataManager myinv=new invdataManager();
+		
+		if (myinv.checkAuth(ivm.getClino(),ivm.getPass())!=0)
 			return 2;
 				
-	    int theresult=inserttherecord(ivm.getClino(),ivm.getInvdatalist());
+	    int theresult=myinv.inserttherecord(ivm.getInvdatalist(),ivm.getClino());
 	      if(theresult==-5)
 			return 3;
 	      else if(theresult==-6)
