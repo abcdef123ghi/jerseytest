@@ -7,11 +7,11 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
 
-@Path("test")
+@Path("/test")
 public class testGet {
 
 	@GET
-	@Path("/test")
+	//@Path("/test")
     @Produces({MediaType.APPLICATION_JSON+ ";charset=utf-8"})
 	
 	public String Hello()
